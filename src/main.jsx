@@ -1,19 +1,19 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import JSZip from 'jszip'
-import { Search, Sparkles, Heart, ArrowUpRight, Palette, Type, Download, RotateCcw, Check, LayoutGrid, ImagePlus, Plus, Trash2, BringToFront, Upload, Smartphone, Square, Layers, Move, RotateCw, FileArchive, X } from 'lucide-react'
+import { Search, Sparkles, Heart, ArrowUpRight, Palette, Type, Download, RotateCcw, Check, LayoutGrid, ImagePlus, Plus, Trash2, BringToFront, Upload, Smartphone, Square, Layers, Move, RotateCw, FileArchive, X, WandSparkles } from 'lucide-react'
 import './style.css'
 
 const packs = [
-  { id: 'brand-pop', name: 'Marca com Personalidade', niche: 'Negócios', style: 'Vibrante', format: 'Feed', price: 0, color: '#ff6b6b', title: 'SUA MARCA\nEM DESTAQUE', subtitle: 'Sua ideia merece ser vista.', tag: 'Demonstração' },
-  { id: 'routine-soft', name: 'Rotina Leve', niche: 'Lifestyle', style: 'Pastel', format: 'Stories', price: 0, color: '#a78bfa', title: 'VIVA NO\nSEU RITMO', subtitle: 'Pequenos momentos, grandes memórias.', tag: 'Demonstração' },
-  { id: 'menu-delicia', name: 'Menu Delícia', niche: 'Gastronomia', style: 'Vibrante', format: 'Feed', price: 0, color: '#fb923c', title: 'FEITO COM\nCARINHO', subtitle: 'Sabor que dá vontade de voltar.', tag: 'Demonstração' },
-  { id: 'agenda-cheia', name: 'Agenda Cheia', niche: 'Beleza', style: 'Elegante', format: 'Stories', price: 0, color: '#f472b6', title: 'SEU MOMENTO\nDE BRILHAR', subtitle: 'Reserve um tempinho para você.', tag: 'Demonstração' },
-  { id: 'creator-flow', name: 'Ideias em Movimento', niche: 'Criadores', style: 'Moderno', format: 'Carrossel', price: 0, color: '#2dd4bf', title: 'CRIE. POSTE.\nINSPIRE.', subtitle: 'Sua próxima grande ideia começa aqui.', tag: 'Demonstração' },
-  { id: 'study-color', name: 'Estudo Colorido', niche: 'Educação', style: 'Pastel', format: 'Feed', price: 0, color: '#818cf8', title: 'APRENDER\nPODE SER LEVE', subtitle: 'Um passo de cada vez.', tag: 'Demonstração' },
-  { id: 'fashion-editorial', name: 'Editorial Chic', niche: 'Moda', style: 'Elegante', format: 'Feed', price: 0, color: '#d9b8a6', title: 'MENOS, MAS\nMELHOR.', subtitle: 'Seu estilo fala antes de você.', tag: 'Demonstração' },
-  { id: 'fitness-energy', name: 'Energia em Foco', niche: 'Fitness', style: 'Vibrante', format: 'Stories', price: 0, color: '#c4f06b', title: 'HOJE É DIA\nDE SUPERAR', subtitle: 'Pequenos passos, grandes resultados.', tag: 'Demonstração' },
-  { id: 'real-estate', name: 'Espaço dos Sonhos', niche: 'Imóveis', style: 'Moderno', format: 'Carrossel', price: 0, color: '#86b7c9', title: 'SEU NOVO\nCOMEÇO', subtitle: 'Encontre o lugar que combina com você.', tag: 'Demonstração' },
+  { id: 'brand-pop', name: 'Marca com Personalidade', niche: 'Negócios', style: 'Vibrante', format: 'Feed', price: 0, color: '#ff6b6b', title: 'SUA MARCA\nEM DESTAQUE', subtitle: 'Sua ideia merece ser vista.', tag: 'Referência editável', photo: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1000&q=85' },
+  { id: 'routine-soft', name: 'Rotina Leve', niche: 'Lifestyle', style: 'Pastel', format: 'Stories', price: 0, color: '#a78bfa', title: 'VIVA NO\nSEU RITMO', subtitle: 'Pequenos momentos, grandes memórias.', tag: 'Referência editável', photo: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&w=1000&q=85' },
+  { id: 'menu-delicia', name: 'Menu Delícia', niche: 'Gastronomia', style: 'Vibrante', format: 'Feed', price: 0, color: '#fb923c', title: 'FEITO COM\nCARINHO', subtitle: 'Sabor que dá vontade de voltar.', tag: 'Referência editável', photo: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1000&q=85' },
+  { id: 'agenda-cheia', name: 'Agenda Cheia', niche: 'Beleza', style: 'Elegante', format: 'Stories', price: 0, color: '#f472b6', title: 'SEU MOMENTO\nDE BRILHAR', subtitle: 'Reserve um tempinho para você.', tag: 'Referência editável', photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=1000&q=85' },
+  { id: 'creator-flow', name: 'Ideias em Movimento', niche: 'Criadores', style: 'Moderno', format: 'Carrossel', price: 0, color: '#2dd4bf', title: 'CRIE. POSTE.\nINSPIRE.', subtitle: 'Sua próxima grande ideia começa aqui.', tag: 'Referência editável', photo: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1000&q=85' },
+  { id: 'study-color', name: 'Estudo Colorido', niche: 'Educação', style: 'Pastel', format: 'Feed', price: 0, color: '#818cf8', title: 'APRENDER\nPODE SER LEVE', subtitle: 'Um passo de cada vez.', tag: 'Referência editável', photo: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1000&q=85' },
+  { id: 'fashion-editorial', name: 'Editorial Chic', niche: 'Moda', style: 'Elegante', format: 'Feed', price: 0, color: '#d9b8a6', title: 'MENOS, MAS\nMELHOR.', subtitle: 'Seu estilo fala antes de você.', tag: 'Referência editável', photo: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1000&q=85' },
+  { id: 'fitness-energy', name: 'Energia em Foco', niche: 'Fitness', style: 'Vibrante', format: 'Stories', price: 0, color: '#c4f06b', title: 'HOJE É DIA\nDE SUPERAR', subtitle: 'Pequenos passos, grandes resultados.', tag: 'Referência editável', photo: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1000&q=85' },
+  { id: 'real-estate', name: 'Espaço dos Sonhos', niche: 'Imóveis', style: 'Moderno', format: 'Carrossel', price: 0, color: '#86b7c9', title: 'SEU NOVO\nCOMEÇO', subtitle: 'Encontre o lugar que combina com você.', tag: 'Referência editável', photo: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=85' },
 ]
 const niches = ['Todos', 'Negócios', 'Lifestyle', 'Gastronomia', 'Beleza', 'Criadores', 'Educação', 'Moda', 'Fitness', 'Imóveis']
 const styles = ['Todos', 'Vibrante', 'Pastel', 'Elegante', 'Moderno']
@@ -21,10 +21,11 @@ const formats = ['Feed', 'Stories', 'Carrossel']
 const uid = () => Math.random().toString(36).slice(2, 10)
 const escapeXml = (value = '') => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&apos;')
 const makeLayers = (pack) => [
-  { id: uid(), type: 'text', name: 'Título', text: pack.title, x: 9, y: 31, w: 82, h: 23, rotation: 0, color: '#292336', fontSize: 8.5, fontFamily: 'Manrope', fontWeight: 900, align: 'left' },
-  { id: uid(), type: 'text', name: 'Subtítulo', text: pack.subtitle, x: 10, y: 57, w: 77, h: 10, rotation: 0, color: '#292336', fontSize: 2.5, fontFamily: 'DM Sans', fontWeight: 500, align: 'left' },
-  { id: uid(), type: 'text', name: 'Assinatura', text: 'SUA MARCA ✦', x: 10, y: 88, w: 48, h: 5, rotation: 0, color: '#292336', fontSize: 1.5, fontFamily: 'DM Sans', fontWeight: 800, align: 'left' },
-  { id: uid(), type: 'shape', name: 'Forma decorativa', shape: 'circle', x: 69, y: 4, w: 27, h: 27, rotation: 0, color: '#ffffff', opacity: 0.3 },
+  ...(pack.photo ? [{ id: uid(), type: 'image', name: 'Foto de referência', src: pack.photo, x: 61, y: 28, w: 31, h: 42, rotation: 0, fit: 'cover', opacity: 1 }] : []),
+  { id: uid(), type: 'shape', name: 'Forma decorativa', shape: 'circle', x: 69, y: 4, w: 27, h: 27, rotation: 0, color: '#ffffff', opacity: 0.35 },
+  { id: uid(), type: 'text', name: 'Título', text: pack.title, x: 9, y: 31, w: 53, h: 24, rotation: 0, color: '#292336', fontSize: 7.1, fontFamily: 'Manrope', fontWeight: 900, align: 'left', opacity: 1 },
+  { id: uid(), type: 'text', name: 'Subtítulo', text: pack.subtitle, x: 10, y: 58, w: 53, h: 12, rotation: 0, color: '#292336', fontSize: 2.5, fontFamily: 'DM Sans', fontWeight: 500, align: 'left', opacity: 1 },
+  { id: uid(), type: 'text', name: 'Assinatura', text: 'SUA MARCA ✦', x: 10, y: 88, w: 48, h: 5, rotation: 0, color: '#292336', fontSize: 1.5, fontFamily: 'DM Sans', fontWeight: 800, align: 'left', opacity: 1 },
 ]
 function App() {
   const [activeNiche, setActiveNiche] = useState('Todos')
@@ -45,6 +46,9 @@ function App() {
   const [uploadedImages, setUploadedImages] = useState([])
   const [carouselCount, setCarouselCount] = useState(3)
   const [slideIndex, setSlideIndex] = useState(1)
+  const [autoNiche, setAutoNiche] = useState('Negócios')
+  const [autoStyle, setAutoStyle] = useState('Moderno')
+  const [autoFormat, setAutoFormat] = useState('Feed')
   const canvasRef = useRef(null)
   const fileRef = useRef(null)
   const logoRef = useRef(null)
@@ -80,9 +84,31 @@ function App() {
     setSelectedLayer(layer.id)
   }
   function addShape() {
-    const layer = { id: uid(), type: 'shape', name: 'Forma', shape: 'circle', x: 36, y: 35, w: 25, h: 25, rotation: 0, color: '#ffffff', opacity: 0.6 }
+    const layer = { id: uid(), type: 'shape', name: 'Forma', shape: 'rounded', x: 36, y: 35, w: 25, h: 25, rotation: 0, color: '#ffffff', opacity: 0.55 }
     setLayers(old => [...old, layer])
     setSelectedLayer(layer.id)
+  }
+  function generatePack() {
+    const base = packs.find(p => p.niche === autoNiche && p.format === autoFormat) || packs.find(p => p.niche === autoNiche) || packs[0]
+    const copy = {
+      'Negócios': ['SUA MARCA\nMAIS FORTE', 'Mostre o valor do que você faz.'],
+      'Lifestyle': ['VIVA MAIS\nLEVE', 'Inspire uma rotina com a sua cara.'],
+      'Gastronomia': ['SABOR QUE\nMARCA', 'Feito para dar água na boca.'],
+      'Beleza': ['SEU MELHOR\nMOMENTO', 'Realce a beleza em cada detalhe.'],
+      'Criadores': ['IDEIA BOA\nVIRA POST', 'Conte histórias que merecem atenção.'],
+      'Educação': ['APRENDA\nALGO NOVO', 'Conhecimento em passos simples.'],
+      'Moda': ['SEU ESTILO.\nSUA HISTÓRIA.', 'Vista a ideia que combina com você.'],
+      'Fitness': ['UM DIA DE\nCADA VEZ', 'Constância também é conquista.'],
+      'Imóveis': ['UM LUGAR\nPARA CHAMAR DE SEU', 'Novos espaços, novas possibilidades.'],
+    }[autoNiche] || ['SUA IDEIA\nEM DESTAQUE', 'Conteúdo com a identidade da sua marca.']
+    const palettes = { 'Vibrante': ['#ff6b6b', '#ffe2b8'], 'Pastel': ['#c9b8f4', '#fff0dc'], 'Elegante': ['#d9b8a6', '#f7e9df'], 'Moderno': ['#253b4a', '#c5e2dc'] }
+    const palette = palettes[autoStyle] || palettes.Moderno
+    const generated = { ...base, format: autoFormat, style: autoStyle, title: copy[0], subtitle: copy[1], color: palette[0], tag: 'Pack gerado' }
+    setSelected(generated); setDesignName('Pack ' + autoNiche); setBgColor(palette[0]); setBgColor2(palette[1]); setBgMode(autoStyle === 'Elegante' ? 'solid' : 'gradient'); setFormat(autoFormat)
+    const newLayers = makeLayers(generated)
+    const accent = { id: uid(), type: 'shape', name: 'Forma de destaque', shape: ['circle','rounded','triangle','star'][Math.floor(Math.random() * 4)], x: 72, y: 5, w: 21, h: 21, rotation: Math.floor(Math.random() * 30) - 15, color: '#ffffff', opacity: 0.42 }
+    setLayers([...newLayers, accent]); setSelectedLayer(null)
+    setNotice('Pack criado. Edite os elementos ou troque a foto antes de exportar.')
   }
   function addImage(file, type = 'image') {
     if (!file) return
@@ -134,16 +160,19 @@ function App() {
       const transform = ' transform="rotate(' + layer.rotation + ' ' + (x + w / 2) + ' ' + (y + h / 2) + ')"'
       if (layer.type === 'shape') {
         const opacity = layer.opacity == null ? 1 : layer.opacity
-        if (layer.shape === 'rect') return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="24" fill="' + layer.color + '" opacity="' + opacity + '"' + transform + '/>'
+        if (layer.shape === 'rect' || layer.shape === 'rounded') return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + (layer.shape === 'rounded' ? Math.min(w, h) * 0.16 : 0) + '" fill="' + layer.color + '" opacity="' + opacity + '"' + transform + '/>'
+        if (layer.shape === 'triangle') return '<path d="M ' + (x+w/2) + ' ' + y + ' L ' + (x+w) + ' ' + (y+h) + ' L ' + x + ' ' + (y+h) + ' Z" fill="' + layer.color + '" opacity="' + opacity + '"' + transform + '/>'
+        if (layer.shape === 'star') { const pts = Array.from({length:10},(_,i)=>{const a=-Math.PI/2+i*Math.PI/5;const r=i%2===0?Math.min(w,h)/2:Math.min(w,h)/4;return (x+w/2+Math.cos(a)*r)+','+(y+h/2+Math.sin(a)*r)}).join(' '); return '<polygon points="' + pts + '" fill="' + layer.color + '" opacity="' + opacity + '"' + transform + '/>' }
+        if (layer.shape === 'line') return '<path d="M ' + x + ' ' + (y+h/2) + ' L ' + (x+w) + ' ' + (y+h/2) + '" stroke="' + layer.color + '" stroke-width="' + Math.max(4,h*0.08) + '" opacity="' + opacity + '"' + transform + '/>'
         return '<ellipse cx="' + (x + w / 2) + '" cy="' + (y + h / 2) + '" rx="' + (w / 2) + '" ry="' + (h / 2) + '" fill="' + layer.color + '" opacity="' + opacity + '"' + transform + '/>'
       }
-      if (layer.type === 'image') return '<image href="' + layer.src + '" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" preserveAspectRatio="' + (layer.fit === 'cover' ? 'xMidYMid slice' : 'xMidYMid meet') + '"' + transform + '/>'
+      if (layer.type === 'image') return '<image href="' + layer.src + '" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" opacity="' + (layer.opacity == null ? 1 : layer.opacity) + '" preserveAspectRatio="' + (layer.fit === 'cover' ? 'xMidYMid slice' : 'xMidYMid meet') + '"' + transform + '/>'
       const lines = String(layer.text || '').split('\n')
       const fontSize = layer.fontSize / 100 * width * 1.05
       const lineHeight = fontSize * 1.05
       const anchor = layer.align === 'center' ? 'middle' : layer.align === 'right' ? 'end' : 'start'
       const tx = layer.align === 'center' ? x + w / 2 : layer.align === 'right' ? x + w : x
-      return '<g' + transform + '>' + lines.map((line, i) => '<text x="' + tx + '" y="' + (y + fontSize + i * lineHeight) + '" font-family="' + escapeXml(layer.fontFamily || 'DM Sans') + ',Arial,sans-serif" font-size="' + fontSize + '" font-weight="' + (layer.fontWeight || 600) + '" text-anchor="' + anchor + '" fill="' + (layer.color || '#292336') + '">' + escapeXml(line) + '</text>').join('') + '</g>'
+      return '<g opacity="' + (layer.opacity == null ? 1 : layer.opacity) + '"' + transform + '>' + lines.map((line, i) => '<text x="' + tx + '" y="' + (y + fontSize + i * lineHeight) + '" font-family="' + escapeXml(layer.fontFamily || 'DM Sans') + ',Arial,sans-serif" font-size="' + fontSize + '" font-weight="' + (layer.fontWeight || 600) + '" text-anchor="' + anchor + '" fill="' + (layer.color || '#292336') + '">' + escapeXml(line) + '</text>').join('') + '</g>'
     }).join('')
     return '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '">' + background + contents + '</svg>'
   }
@@ -212,11 +241,11 @@ function App() {
   }
   function renderLayer(layer) {
     const selectedClass = selectedLayer === layer.id ? 'design-layer selected-layer' : 'design-layer'
-    const style = { left: layer.x + '%', top: layer.y + '%', width: layer.w + '%', height: layer.h + '%', transform: 'rotate(' + layer.rotation + 'deg)', color: layer.color, fontSize: 'clamp(9px, ' + (layer.fontSize || 3) + 'cqw, 64px)', fontFamily: layer.fontFamily || 'DM Sans', fontWeight: layer.fontWeight || 600, textAlign: layer.align || 'left', opacity: layer.opacity == null ? 1 : layer.opacity }
+    const style = { left: layer.x + '%', top: layer.y + '%', width: layer.w + '%', height: layer.h + '%', transform: 'rotate(' + layer.rotation + 'deg)', color: layer.color, fontSize: 'clamp(9px, ' + (layer.fontSize || 3) + 'cqw, 64px)', fontFamily: layer.fontFamily || 'DM Sans', fontWeight: layer.fontWeight || 600, textAlign: layer.align || 'left', opacity: layer.type === 'shape' ? 1 : (layer.opacity == null ? 1 : layer.opacity) }
     return <div key={layer.id} className={selectedClass} style={style} onPointerDown={e => startAction(e, layer)} onClick={e => { e.stopPropagation(); setSelectedLayer(layer.id) }} title="Arraste para mover">
       {layer.type === 'text' && <span className="layer-text">{layer.text}</span>}
       {layer.type === 'image' && <img draggable="false" src={layer.src} alt={layer.name} style={{ objectFit: layer.fit || 'contain' }} />}
-      {layer.type === 'shape' && <span className={'layer-shape ' + (layer.shape === 'rect' ? 'shape-rect' : 'shape-circle')} style={{ background: layer.color, opacity: layer.opacity == null ? 1 : layer.opacity }} />}
+      {layer.type === 'shape' && <span className={'layer-shape shape-' + (layer.shape || 'circle')} style={{ background: layer.color, opacity: layer.opacity == null ? 1 : layer.opacity }} />}
       {selectedLayer === layer.id && <><span className="layer-label">{layer.name}</span><button className="resize-handle" aria-label="Redimensionar elemento" onPointerDown={e => startAction(e, layer, 'resize')} /></>}
     </div>
   }
@@ -243,7 +272,7 @@ function App() {
         </div>
         <div className="pack-grid">{filtered.map(pack => <article className="pack-card" key={pack.id}>
           <button className="favorite-btn" aria-label={favorites.includes(pack.id) ? 'Remover favorito' : 'Adicionar favorito'} onClick={() => addToFavorites(pack)}><Heart size={17} fill={favorites.includes(pack.id) ? 'currentColor' : 'none'} /></button>
-          <button className="pack-preview-button" onClick={() => setDetailsPack(pack)} aria-label={'Ver detalhes de ' + pack.name}><div className="pack-art" style={{ background: 'linear-gradient(145deg,' + pack.color + ',#fff0dc)' }}><span className="pack-tag">{pack.tag}</span><span className="pack-deco">✦</span><strong>{pack.title.split('\n').map((line, i) => <React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>)}</strong><small>{pack.subtitle}</small><span className="art-brand">PACKÊ ✦</span></div></button>
+          <button className="pack-preview-button" onClick={() => setDetailsPack(pack)} aria-label={'Ver detalhes de ' + pack.name}><div className="pack-art" style={{ background: 'linear-gradient(90deg, ' + pack.color + 'd9, ' + pack.color + '45), url("' + pack.photo + '") center/cover, ' + pack.color }}><span className="pack-tag">{pack.tag}</span><span className="pack-deco">✦</span><strong>{pack.title.split('\n').map((line, i) => <React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>)}</strong><small>{pack.subtitle}</small><span className="art-brand">PACKÊ ✦</span></div></button>
           <div className="pack-info"><div><h3>{pack.name}</h3><p>{pack.niche} · {pack.style}</p></div><span className="price-label">Grátis · Demo</span></div>
           <div className="pack-meta"><span><Square size={12} /> {pack.format}</span><span>{pack.price === 0 ? 'Sem custo' : 'R$ ' + pack.price.toFixed(2)}</span></div>
           <button className="edit-pack-btn" onClick={() => choosePack(pack)}>Abrir no editor <ArrowUpRight size={15} /></button>
@@ -251,7 +280,7 @@ function App() {
         {filtered.length === 0 && <div className="empty-state"><Search size={28} /><h3>Nenhum modelo encontrado</h3><p>Altere os filtros para ver outras opções.</p><button onClick={() => { setQuery(''); setActiveNiche('Todos'); setActiveStyle('Todos'); setActiveFormat('Todos') }}>Limpar filtros</button></div>}
       </section>
 
-      {detailsPack && <div className="details-backdrop" onClick={e => { if (e.target === e.currentTarget) setDetailsPack(null) }}><section className="details-modal" role="dialog" aria-modal="true"><button className="auth-close" aria-label="Fechar detalhes" onClick={() => setDetailsPack(null)}><X size={18} /></button><div className="pack-art details-art" style={{ background: 'linear-gradient(145deg,' + detailsPack.color + ',#fff0dc)' }}><span className="pack-tag">Modelo de demonstração</span><strong>{detailsPack.title.split('\n').map((line, i) => <React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>)}</strong><small>{detailsPack.subtitle}</small></div><div className="eyebrow">{detailsPack.niche} · {detailsPack.style}</div><h2>{detailsPack.name}</h2><p>Use esta fotografia como referência visual. No editor, troque a foto, ajuste transparência e formas, e personalize textos e logotipo antes de exportar.</p><div className="details-price"><strong>Grátis</strong><span>Modelo demonstrativo · {detailsPack.format}</span></div><button className="download-btn" onClick={() => { choosePack(detailsPack); setDetailsPack(null) }}>Personalizar este modelo <ArrowUpRight size={17} /></button></section></div>}
+      {detailsPack && <div className="details-backdrop" onClick={e => { if (e.target === e.currentTarget) setDetailsPack(null) }}><section className="details-modal" role="dialog" aria-modal="true"><button className="auth-close" aria-label="Fechar detalhes" onClick={() => setDetailsPack(null)}><X size={18} /></button><div className="pack-art details-art" style={{ background: 'linear-gradient(90deg, ' + detailsPack.color + 'd9, ' + detailsPack.color + '45), url("' + detailsPack.photo + '") center/cover, ' + detailsPack.color }}><span className="pack-tag">Modelo de demonstração</span><strong>{detailsPack.title.split('\n').map((line, i) => <React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>)}</strong><small>{detailsPack.subtitle}</small></div><div className="eyebrow">{detailsPack.niche} · {detailsPack.style}</div><h2>{detailsPack.name}</h2><p>Use esta fotografia como referência visual. No editor, troque a foto, ajuste transparência e formas, e personalize textos e logotipo antes de exportar.</p><div className="details-price"><strong>Grátis</strong><span>Modelo demonstrativo · {detailsPack.format}</span></div><button className="download-btn" onClick={() => { choosePack(detailsPack); setDetailsPack(null) }}>Personalizar este modelo <ArrowUpRight size={17} /></button></section></div>}
 
       <section className="editor-section" id="editor">
         <div className="section-heading editor-heading"><div><div className="eyebrow">EDITOR VISUAL</div><h2>Edite absolutamente tudo.</h2><p>Selecione um elemento na arte para mover, redimensionar, girar ou alterar as propriedades.</p></div><div className="editor-badge"><Move size={16} /> Editor manual</div></div>
@@ -268,6 +297,15 @@ function App() {
           </div>
           <div className="editor-controls">
             <div className="control-title"><div className="control-icon"><LayoutGrid size={18} /></div><div><h3>Personalização completa</h3><p>Modelo: {selected.name}</p></div></div>
+            <div className="auto-pack-panel">
+              <div className="auto-pack-heading"><WandSparkles size={17} /><div><strong>Gerar pack automático</strong><small>Escolha as opções e receba uma arte editável.</small></div></div>
+              <div className="auto-pack-fields">
+                <label>Nicho<select value={autoNiche} onChange={e => setAutoNiche(e.target.value)}>{niches.filter(n => n !== 'Todos').map(n => <option key={n}>{n}</option>)}</select></label>
+                <label>Estilo<select value={autoStyle} onChange={e => setAutoStyle(e.target.value)}>{styles.filter(s => s !== 'Todos').map(s => <option key={s}>{s}</option>)}</select></label>
+                <label>Formato<select value={autoFormat} onChange={e => setAutoFormat(e.target.value)}>{formats.map(f => <option key={f}>{f}</option>)}</select></label>
+              </div>
+              <button className="generate-pack-btn" onClick={generatePack}><WandSparkles size={16} /> Gerar meu pack</button>
+            </div>
             <label className="field-label" htmlFor="design-name">NOME DO PROJETO</label><input id="design-name" className="text-field" value={designName} onChange={e => setDesignName(e.target.value)} />
             <div className="field-label"><Palette size={14} /> FUNDO DA ARTE</div><div className="background-controls"><label>Cor principal <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)} /></label><label>Cor secundária <input type="color" value={bgColor2} onChange={e => setBgColor2(e.target.value)} /></label></div><div className="bg-mode-row"><button className={bgMode === 'gradient' ? 'mini-choice active' : 'mini-choice'} onClick={() => setBgMode('gradient')}>Degradê</button><button className={bgMode === 'solid' ? 'mini-choice active' : 'mini-choice'} onClick={() => setBgMode('solid')}>Cor sólida</button></div>
             <div className="element-actions"><button onClick={addText}><Type size={15} /> Texto</button><button onClick={addShape}><Plus size={15} /> Forma</button><button onClick={() => fileRef.current?.click()}><ImagePlus size={15} /> Imagem</button><button onClick={() => logoRef.current?.click()}><Upload size={15} /> Logotipo</button><input ref={fileRef} type="file" accept="image/*" hidden onChange={e => { addImage(e.target.files?.[0], 'image'); e.target.value = '' }} /><input ref={logoRef} type="file" accept="image/*" hidden onChange={e => { addImage(e.target.files?.[0], 'logo'); e.target.value = '' }} /></div>
@@ -283,7 +321,7 @@ function App() {
               <div className="selected-footer"><button onClick={() => updateLayer(currentLayer.id, { rotation: (currentLayer.rotation + 15) % 360 })}><RotateCw size={14} /> Girar +15°</button><button onClick={() => setLayers(old => { const rest = old.filter(l => l.id !== currentLayer.id); return [...rest, currentLayer] })}><BringToFront size={14} /> Trazer à frente</button></div>
             </div> : <div className="no-selection"><Move size={20} /><strong>Nenhum elemento selecionado</strong><span>Clique em uma camada ou toque no elemento da arte para editar.</span></div>}
             <div className="export-actions"><button className="download-btn" onClick={downloadPng}><Download size={17} /> Baixar PNG <ArrowUpRight size={17} /></button><button className="zip-btn" onClick={downloadZip}><FileArchive size={17} /> Exportar projeto em ZIP</button></div>
-            {notice && <p className="notice"><Check size={15} /> {notice}</p>}<p className="editor-disclaimer">Os projetos ficam nesta sessão até você exportar. Salvamento permanente na conta será ligado numa próxima etapa.</p>
+            {notice && <p className="notice"><Check size={15} /> {notice}</p>}<p className="editor-disclaimer">O pack é gerado no navegador. Fotografia de referência: Unsplash; substitua pela imagem autorizada da sua marca antes de publicar.</p>
           </div>
         </div>
       </section>
