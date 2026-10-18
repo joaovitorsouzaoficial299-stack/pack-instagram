@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Search, Sparkles, Heart, ArrowUpRight, Instagram, Palette, Type, Download, RotateCcw, Check, LayoutGrid } from 'lucide-react'
+import { Search, Sparkles, Heart, ArrowUpRight, Palette, Type, Download, RotateCcw, Check, LayoutGrid } from 'lucide-react'
 import './style.css'
 
 const packs = [
