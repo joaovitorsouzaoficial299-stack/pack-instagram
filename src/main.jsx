@@ -148,11 +148,11 @@ function App() {
     window.addEventListener('pointerup', endAction)
     return () => { window.removeEventListener('pointermove', moveAction); window.removeEventListener('pointerup', endAction) }
   })
-  function svgMarkup(slide = 1) {
-    const width = format === 'Stories' ? 1080 : 1080
-    const height = format === 'Stories' ? 1920 : 1080
+  function svgMarkup(slide = 1, sourceLayers = layers, targetFormat = format) {
+    const width = 1080
+    const height = targetFormat === 'Stories' ? 1920 : 1080
     const background = bgMode === 'solid' ? '<rect width="100%" height="100%" fill="' + bgColor + '"/>' : '<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="' + bgColor + '"/><stop offset="1" stop-color="' + bgColor2 + '"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#bg)"/>'
-    const contents = layers.map(layer => {
+    const contents = sourceLayers.map(layer => {
       const x = layer.x / 100 * width
       const y = layer.y / 100 * height
       const w = layer.w / 100 * width
@@ -176,8 +176,24 @@ function App() {
     }).join('')
     return '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '">' + background + contents + '</svg>'
   }
-  async function makePngBlob() {
-    const svg = svgMarkup()
+  async function inlineRemoteImages(sourceLayers = layers) {
+    return Promise.all(sourceLayers.map(async layer => {
+      if (layer.type !== 'image' || !/^https?:\/\//i.test(layer.src || '')) return layer
+      const response = await fetch(layer.src, { mode: 'cors' })
+      if (!response.ok) throw new Error('A fotografia não pôde ser carregada para exportação.')
+      const blob = await response.blob()
+      const dataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result)
+        reader.onerror = reject
+        reader.readAsDataURL(blob)
+      })
+      return { ...layer, src: dataUrl }
+    }))
+  }
+  async function makePngBlob(sourceLayers = layers, targetFormat = format) {
+    const exportLayers = await inlineRemoteImages(sourceLayers)
+    const svg = svgMarkup(1, exportLayers, targetFormat)
     const svgBlob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' })
     const url = URL.createObjectURL(svgBlob)
     try {
@@ -186,7 +202,7 @@ function App() {
       await img.decode()
       const canvas = document.createElement('canvas')
       canvas.width = 1080
-      canvas.height = format === 'Stories' ? 1920 : 1080
+      canvas.height = targetFormat === 'Stories' ? 1920 : 1080
       const ctx = canvas.getContext('2d')
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
       return await new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
@@ -208,14 +224,20 @@ function App() {
   async function downloadZip() {
     try {
       const zip = new JSZip()
-      const png = await makePngBlob()
+      const exportLayers = await inlineRemoteImages(layers)
+      const png = await makePngBlob(exportLayers, format)
       zip.file('arte-principal.png', png)
-      zip.file('arte-editavel.svg', svgMarkup())
-      zip.file('projeto-packe.json', JSON.stringify({ name: designName, format, background: { color: bgColor, color2: bgColor2, mode: bgMode }, layers }, null, 2))
+      zip.file('arte-editavel.svg', svgMarkup(1, exportLayers, format))
+      zip.file('projeto-packe.json', JSON.stringify({ name: designName, format, background: { color: bgColor, color2: bgColor2, mode: bgMode }, layers: exportLayers }, null, 2))
       if (format === 'Carrossel') {
-        for (let i = 2; i <= carouselCount; i++) {
-          const svg = svgMarkup(i).replace('</svg>', '<text x="1000" y="1030" text-anchor="end" font-family="Arial" font-size="24" fill="#292336">' + i + '/' + carouselCount + '</text></svg>')
-          zip.file('carrossel/slide-' + String(i).padStart(2, '0') + '.svg', svg)
+        const titles = [selected.title, 'O QUE VOCÊ PRECISA SABER', 'COMO COLOCAR EM PRÁTICA', '3 DICAS PARA COMEÇAR', 'SALVE PARA CONSULTAR', 'COMPARTILHE COM ALGUÉM']
+        const subtitles = [selected.subtitle, 'Separe o que importa e vá direto ao ponto.', 'Pequenas ações já ajudam a dar o primeiro passo.', 'Use estas ideias como ponto de partida.', 'Volte a este conteúdo quando precisar.', 'Envie para quem também pode aproveitar.']
+        for (let i = 1; i <= carouselCount; i++) {
+          const slideLayers = exportLayers.map(layer => layer.type === 'text' && layer.name === 'Título' ? { ...layer, text: titles[(i - 1) % titles.length] } : layer.type === 'text' && layer.name === 'Subtítulo' ? { ...layer, text: subtitles[(i - 1) % subtitles.length] } : layer)
+          const slidePng = await makePngBlob(slideLayers, 'Carrossel')
+          const slideSvg = svgMarkup(i, slideLayers, 'Carrossel').replace('</svg>', '<text x="1000" y="1030" text-anchor="end" font-family="Arial" font-size="24" fill="#292336">' + i + '/' + carouselCount + '</text></svg>')
+          zip.file('carrossel/slide-' + String(i).padStart(2, '0') + '.png', slidePng)
+          zip.file('carrossel/slide-' + String(i).padStart(2, '0') + '.svg', slideSvg)
         }
       }
       const blob = await zip.generateAsync({ type: 'blob' })
@@ -263,7 +285,7 @@ function App() {
       </section>
 
       <section className="catalog-section" id="catalogo">
-        <div className="section-heading"><div><div className="eyebrow">CATÁLOGO DE DEMONSTRAÇÃO</div><h2>Encontre seu ponto de partida.</h2><p>Explore por nicho, estilo e formato. As imagens são referências visuais editáveis, não designs licenciados de outras marcas.</p></div><div className="catalog-count"><span>{filtered.length.toString().padStart(2, '0')}</span> modelos editáveis</div></div>
+        <div className="section-heading"><div><div className="eyebrow">REFERÊNCIAS VISUAIS</div><h2>Encontre seu ponto de partida.</h2><p>Explore por nicho, estilo e formato. As imagens são referências visuais editáveis, não designs licenciados de outras marcas.</p></div><div className="catalog-count"><span>{filtered.length.toString().padStart(2, '0')}</span> modelos editáveis</div></div>
         <div className="catalog-filters">
           <label className="filter-select"><span>Nicho</span><select value={activeNiche} onChange={e => setActiveNiche(e.target.value)}>{niches.map(n => <option key={n}>{n}</option>)}</select></label>
           <label className="filter-select"><span>Estilo</span><select value={activeStyle} onChange={e => setActiveStyle(e.target.value)}>{styles.map(s => <option key={s}>{s}</option>)}</select></label>
