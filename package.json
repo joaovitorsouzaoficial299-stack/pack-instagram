@@ -14,7 +14,8 @@
     "react": "latest",
     "react-dom": "latest",
     "lucide-react": "latest",
-    "@supabase/supabase-js": "^2.57.4"
+    "@supabase/supabase-js": "^2.57.4",
+    "jszip": "^3.10.1"
   },
   "devDependencies": {}
 }
