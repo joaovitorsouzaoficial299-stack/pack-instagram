@@ -286,7 +286,12 @@ function App() {
     <main>
       <section className="hero">
         <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-dot" /> CRIAÇÃO DE CONTEÚDO PARA MARCAS</div><h1>Posts com a cara<br /><span>do seu negócio.</span></h1><p>Comece por uma referência visual, troque a foto e ajuste cada detalhe. Crie artes para Feed, Stories e carrosséis sem complicação.</p><div className="hero-actions"><button className="primary-btn" onClick={() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })}>Explorar modelos <ArrowUpRight size={18} /></button><span className="free-note"><Check size={15} /> Modelos de demonstração</span></div><div className="hero-proof"><div className="avatar-stack"><span>🎨</span><span>💖</span><span>✨</span></div><div><strong>Crie sem ficar preso ao modelo</strong><small>Mova · Redimensione · Personalize</small></div></div></div>
-        <div className="hero-art" aria-label="Demonstração de modelos para Instagram"><div className="sticker sticker-spark">✦</div><div className="sticker sticker-heart">♥</div><div className="poster poster-back"><span className="poster-mini">IDEIAS QUE</span><strong>VIRAM<br />CONTEÚDO</strong><span className="poster-bottom">✳ CRIATIVIDADE TODO DIA</span></div><div className="poster poster-front"><div className="poster-pill">100% PERSONALIZÁVEL</div><div className="poster-sun">✺</div><strong>CRIE<br />DO SEU<br /><em>JEITO.</em></strong><span className="poster-footer">um post de cada vez ↗</span></div><div className="hero-caption"><span className="caption-icon"><Move size={17} /></span><span><b>Você controla cada elemento</b><small>Posição, tamanho, giro e mais</small></span></div></div>
+        <div className="hero-art hero-photo-collage" aria-label="Referências de fotografia para conteúdo de marcas">
+          <div className="hero-photo hero-photo-main"><img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=85" alt="Referência fotográfica de moda" /></div>
+          <div className="hero-photo hero-photo-food"><img src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=700&q=85" alt="Referência fotográfica de gastronomia" /></div>
+          <div className="hero-photo hero-photo-work"><img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=700&q=85" alt="Referência fotográfica para negócios" /></div>
+          <div className="hero-caption"><span className="caption-icon"><Move size={17} /></span><span><b>Referências que você pode editar</b><small>Troque fotos, texto, formas e cores</small></span></div>
+        </div>
       </section>
 
       <section className="catalog-section" id="catalogo">
