@@ -1,110 +1,293 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Search, Sparkles, Heart, ArrowUpRight, Palette, Type, Download, RotateCcw, Check, LayoutGrid } from 'lucide-react'
+import JSZip from 'jszip'
+import { Search, Sparkles, Heart, ArrowUpRight, Palette, Type, Download, RotateCcw, Check, LayoutGrid, ImagePlus, Plus, Trash2, BringToFront, Upload, Smartphone, Square, Layers, Move, RotateCw, FileArchive, X } from 'lucide-react'
 import './style.css'
 
 const packs = [
-  { id: 1, name: 'Marca com Personalidade', category: 'Negócios', price: 'Grátis', color: '#ff6b6b', bg: 'linear-gradient(145deg,#ff6b6b,#ff9f68)', tag: 'Mais usado', title: 'SUA MARCA\nEM DESTAQUE', subtitle: 'Sua ideia merece ser vista.', shape: 'circle' },
-  { id: 2, name: 'Rotina Leve', category: 'Lifestyle', price: 'Grátis', color: '#a78bfa', bg: 'linear-gradient(145deg,#a78bfa,#f0abfc)', tag: 'Novo', title: 'VIVA NO\nSEU RITMO', subtitle: 'Pequenos momentos, grandes memórias.', shape: 'blob' },
-  { id: 3, name: 'Menu Delícia', category: 'Gastronomia', price: 'Grátis', color: '#fb923c', bg: 'linear-gradient(145deg,#fb923c,#facc15)', tag: 'Popular', title: 'FEITO COM\nCARINHO', subtitle: 'Sabor que dá vontade de voltar.', shape: 'circle' },
-  { id: 4, name: 'Agenda Cheia', category: 'Beleza', price: 'Grátis', color: '#f472b6', bg: 'linear-gradient(145deg,#f472b6,#fb7185)', tag: 'Favorito', title: 'SEU MOMENTO\nDE BRILHAR', subtitle: 'Reserve um tempinho para você.', shape: 'blob' },
-  { id: 5, name: 'Ideias em Movimento', category: 'Criadores', price: 'Grátis', color: '#2dd4bf', bg: 'linear-gradient(145deg,#2dd4bf,#60a5fa)', tag: 'Criativo', title: 'CRIE. POSTE.\nINSPIRE.', subtitle: 'Sua próxima grande ideia começa aqui.', shape: 'circle' },
-  { id: 6, name: 'Estudo Colorido', category: 'Educação', price: 'Grátis', color: '#818cf8', bg: 'linear-gradient(145deg,#818cf8,#67e8f9)', tag: 'Em alta', title: 'APRENDER\nPODE SER LEVE', subtitle: 'Um passo de cada vez.', shape: 'blob' },
+  { id: 'brand-pop', name: 'Marca com Personalidade', niche: 'Negócios', style: 'Vibrante', format: 'Feed', price: 0, color: '#ff6b6b', title: 'SUA MARCA\nEM DESTAQUE', subtitle: 'Sua ideia merece ser vista.', tag: 'Demonstração' },
+  { id: 'routine-soft', name: 'Rotina Leve', niche: 'Lifestyle', style: 'Pastel', format: 'Stories', price: 0, color: '#a78bfa', title: 'VIVA NO\nSEU RITMO', subtitle: 'Pequenos momentos, grandes memórias.', tag: 'Demonstração' },
+  { id: 'menu-delicia', name: 'Menu Delícia', niche: 'Gastronomia', style: 'Vibrante', format: 'Feed', price: 0, color: '#fb923c', title: 'FEITO COM\nCARINHO', subtitle: 'Sabor que dá vontade de voltar.', tag: 'Demonstração' },
+  { id: 'agenda-cheia', name: 'Agenda Cheia', niche: 'Beleza', style: 'Elegante', format: 'Stories', price: 0, color: '#f472b6', title: 'SEU MOMENTO\nDE BRILHAR', subtitle: 'Reserve um tempinho para você.', tag: 'Demonstração' },
+  { id: 'creator-flow', name: 'Ideias em Movimento', niche: 'Criadores', style: 'Moderno', format: 'Carrossel', price: 0, color: '#2dd4bf', title: 'CRIE. POSTE.\nINSPIRE.', subtitle: 'Sua próxima grande ideia começa aqui.', tag: 'Demonstração' },
+  { id: 'study-color', name: 'Estudo Colorido', niche: 'Educação', style: 'Pastel', format: 'Feed', price: 0, color: '#818cf8', title: 'APRENDER\nPODE SER LEVE', subtitle: 'Um passo de cada vez.', tag: 'Demonstração' },
+  { id: 'fashion-editorial', name: 'Editorial Chic', niche: 'Moda', style: 'Elegante', format: 'Feed', price: 0, color: '#d9b8a6', title: 'MENOS, MAS\nMELHOR.', subtitle: 'Seu estilo fala antes de você.', tag: 'Demonstração' },
+  { id: 'fitness-energy', name: 'Energia em Foco', niche: 'Fitness', style: 'Vibrante', format: 'Stories', price: 0, color: '#c4f06b', title: 'HOJE É DIA\nDE SUPERAR', subtitle: 'Pequenos passos, grandes resultados.', tag: 'Demonstração' },
+  { id: 'real-estate', name: 'Espaço dos Sonhos', niche: 'Imóveis', style: 'Moderno', format: 'Carrossel', price: 0, color: '#86b7c9', title: 'SEU NOVO\nCOMEÇO', subtitle: 'Encontre o lugar que combina com você.', tag: 'Demonstração' },
 ]
-
-const categories = ['Todos', 'Negócios', 'Lifestyle', 'Gastronomia', 'Beleza', 'Criadores', 'Educação']
-
+const niches = ['Todos', 'Negócios', 'Lifestyle', 'Gastronomia', 'Beleza', 'Criadores', 'Educação', 'Moda', 'Fitness', 'Imóveis']
+const styles = ['Todos', 'Vibrante', 'Pastel', 'Elegante', 'Moderno']
+const formats = ['Feed', 'Stories', 'Carrossel']
+const uid = () => Math.random().toString(36).slice(2, 10)
+const escapeXml = (value = '') => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&apos;')
+const makeLayers = (pack) => [
+  { id: uid(), type: 'text', name: 'Título', text: pack.title, x: 9, y: 31, w: 82, h: 23, rotation: 0, color: '#292336', fontSize: 8.5, fontFamily: 'Manrope', fontWeight: 900, align: 'left' },
+  { id: uid(), type: 'text', name: 'Subtítulo', text: pack.subtitle, x: 10, y: 57, w: 77, h: 10, rotation: 0, color: '#292336', fontSize: 2.5, fontFamily: 'DM Sans', fontWeight: 500, align: 'left' },
+  { id: uid(), type: 'text', name: 'Assinatura', text: 'SUA MARCA ✦', x: 10, y: 88, w: 48, h: 5, rotation: 0, color: '#292336', fontSize: 1.5, fontFamily: 'DM Sans', fontWeight: 800, align: 'left' },
+  { id: uid(), type: 'shape', name: 'Forma decorativa', shape: 'circle', x: 69, y: 4, w: 27, h: 27, rotation: 0, color: '#ffffff', opacity: 0.3 },
+]
 function App() {
-  const [activeCategory, setActiveCategory] = useState('Todos')
+  const [activeNiche, setActiveNiche] = useState('Todos')
+  const [activeStyle, setActiveStyle] = useState('Todos')
+  const [activeFormat, setActiveFormat] = useState('Todos')
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(packs[0])
   const [favorites, setFavorites] = useState([])
-  const [customTitle, setCustomTitle] = useState(packs[0].title)
-  const [customSubtitle, setCustomSubtitle] = useState(packs[0].subtitle)
-  const [customColor, setCustomColor] = useState(packs[0].color)
+  const [format, setFormat] = useState('Feed')
+  const [layers, setLayers] = useState(() => makeLayers(packs[0]))
+  const [selectedLayer, setSelectedLayer] = useState(null)
   const [notice, setNotice] = useState('')
+  const [detailsPack, setDetailsPack] = useState(null)
+  const [bgColor, setBgColor] = useState(packs[0].color)
+  const [bgColor2, setBgColor2] = useState('#fff0dc')
+  const [bgMode, setBgMode] = useState('gradient')
+  const [designName, setDesignName] = useState('Minha criação')
+  const [uploadedImages, setUploadedImages] = useState([])
+  const [carouselCount, setCarouselCount] = useState(3)
+  const [slideIndex, setSlideIndex] = useState(1)
+  const canvasRef = useRef(null)
+  const fileRef = useRef(null)
+  const logoRef = useRef(null)
+  const actionRef = useRef(null)
 
   const filtered = useMemo(() => packs.filter(pack =>
-    (activeCategory === 'Todos' || pack.category === activeCategory) &&
-    (pack.name.toLowerCase().includes(query.toLowerCase()) || pack.category.toLowerCase().includes(query.toLowerCase()))
-  ), [activeCategory, query])
+    (activeNiche === 'Todos' || pack.niche === activeNiche) &&
+    (activeStyle === 'Todos' || pack.style === activeStyle) &&
+    (activeFormat === 'Todos' || pack.format === activeFormat) &&
+    (pack.name.toLowerCase().includes(query.toLowerCase()) || pack.niche.toLowerCase().includes(query.toLowerCase()) || pack.style.toLowerCase().includes(query.toLowerCase()))
+  ), [activeNiche, activeStyle, activeFormat, query])
+  const currentLayer = layers.find(layer => layer.id === selectedLayer) || null
+  const ratio = format === 'Stories' ? '9 / 16' : '1 / 1'
+  const canvasHeight = format === 'Stories' ? 560 : 440
 
   function choosePack(pack) {
     setSelected(pack)
-    setCustomTitle(pack.title)
-    setCustomSubtitle(pack.subtitle)
-    setCustomColor(pack.color)
+    setBgColor(pack.color)
+    setBgColor2('#fff0dc')
+    setLayers(makeLayers(pack))
+    setSelectedLayer(null)
+    setFormat(pack.format === 'Carrossel' ? 'Feed' : pack.format)
+    setDesignName(pack.name)
     setNotice('')
+    document.getElementById('editor')?.scrollIntoView({ behavior: 'smooth' })
   }
-
-  function downloadDesign() {
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${customColor}"/><stop offset="1" stop-color="#fff0dc"/></linearGradient></defs><rect width="1080" height="1080" rx="40" fill="url(#g)"/><circle cx="880" cy="180" r="170" fill="#ffffff" opacity=".2"/><circle cx="160" cy="930" r="230" fill="#ffffff" opacity=".16"/><text x="90" y="440" font-family="Arial,sans-serif" font-weight="900" font-size="96" fill="#251b2e">${escapeXml(customTitle.split('\n')[0])}</text><text x="90" y="550" font-family="Arial,sans-serif" font-weight="900" font-size="96" fill="#251b2e">${escapeXml(customTitle.split('\n')[1] || '')}</text><text x="95" y="650" font-family="Arial,sans-serif" font-size="32" fill="#251b2e">${escapeXml(customSubtitle)}</text><text x="95" y="970" font-family="Arial,sans-serif" font-size="24" fill="#251b2e" opacity=".7">FEITO COM PACKÊ ✦</text></svg>`
-    const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'meu-post-packe.svg'
-    a.click()
-    URL.revokeObjectURL(url)
-    setNotice('Seu design foi baixado em SVG. Você pode abrir e converter para PNG se precisar.')
+  function updateLayer(id, changes) {
+    setLayers(old => old.map(layer => layer.id === id ? { ...layer, ...changes } : layer))
   }
-
-  function escapeXml(value = '') {
-    return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&apos;')
+  function addText() {
+    const layer = { id: uid(), type: 'text', name: 'Novo texto', text: 'Escreva aqui', x: 25, y: 42, w: 55, h: 12, rotation: 0, color: '#292336', fontSize: 5, fontFamily: 'DM Sans', fontWeight: 700, align: 'center' }
+    setLayers(old => [...old, layer])
+    setSelectedLayer(layer.id)
+  }
+  function addShape() {
+    const layer = { id: uid(), type: 'shape', name: 'Forma', shape: 'circle', x: 36, y: 35, w: 25, h: 25, rotation: 0, color: '#ffffff', opacity: 0.6 }
+    setLayers(old => [...old, layer])
+    setSelectedLayer(layer.id)
+  }
+  function addImage(file, type = 'image') {
+    if (!file) return
+    if (!file.type.startsWith('image/')) { setNotice('Escolha um arquivo de imagem válido.'); return }
+    if (file.size > 8 * 1024 * 1024) { setNotice('A imagem precisa ter até 8 MB.'); return }
+    const reader = new FileReader()
+    reader.onload = () => {
+      const layer = { id: uid(), type: 'image', name: type === 'logo' ? 'Logotipo' : file.name.replace(/\.[^.]+$/, ''), src: reader.result, x: type === 'logo' ? 8 : 27, y: type === 'logo' ? 6 : 27, w: type === 'logo' ? 22 : 46, h: type === 'logo' ? 10 : 42, rotation: 0, fit: 'contain' }
+      setLayers(old => [...old, layer])
+      setSelectedLayer(layer.id)
+      setNotice(type === 'logo' ? 'Logotipo adicionado. Você pode mover e redimensionar.' : 'Imagem adicionada. Você pode mover e redimensionar.')
+    }
+    reader.readAsDataURL(file)
+  }
+  function startAction(event, layer, mode = 'move') {
+    event.preventDefault()
+    event.stopPropagation()
+    setSelectedLayer(layer.id)
+    const rect = canvasRef.current.getBoundingClientRect()
+    actionRef.current = { id: layer.id, mode, startX: event.clientX, startY: event.clientY, x: layer.x, y: layer.y, w: layer.w, h: layer.h, rect }
+    event.currentTarget.setPointerCapture?.(event.pointerId)
+  }
+  function moveAction(event) {
+    const action = actionRef.current
+    if (!action) return
+    const dx = (event.clientX - action.startX) / action.rect.width * 100
+    const dy = (event.clientY - action.startY) / action.rect.height * 100
+    if (action.mode === 'resize') {
+      updateLayer(action.id, { w: Math.max(5, Math.min(100 - action.x, action.w + dx)), h: Math.max(3, Math.min(100 - action.y, action.h + dy)) })
+    } else {
+      updateLayer(action.id, { x: Math.max(0, Math.min(100 - action.w, action.x + dx)), y: Math.max(0, Math.min(100 - action.h, action.y + dy)) })
+    }
+  }
+  function endAction() { actionRef.current = null }
+  useEffect(() => {
+    window.addEventListener('pointermove', moveAction)
+    window.addEventListener('pointerup', endAction)
+    return () => { window.removeEventListener('pointermove', moveAction); window.removeEventListener('pointerup', endAction) }
+  })
+  function svgMarkup(slide = 1) {
+    const width = format === 'Stories' ? 1080 : 1080
+    const height = format === 'Stories' ? 1920 : 1080
+    const background = bgMode === 'solid' ? '<rect width="100%" height="100%" fill="' + bgColor + '"/>' : '<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="' + bgColor + '"/><stop offset="1" stop-color="' + bgColor2 + '"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#bg)"/>'
+    const contents = layers.map(layer => {
+      const x = layer.x / 100 * width
+      const y = layer.y / 100 * height
+      const w = layer.w / 100 * width
+      const h = layer.h / 100 * height
+      const transform = ' transform="rotate(' + layer.rotation + ' ' + (x + w / 2) + ' ' + (y + h / 2) + ')"'
+      if (layer.type === 'shape') {
+        const opacity = layer.opacity == null ? 1 : layer.opacity
+        if (layer.shape === 'rect') return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="24" fill="' + layer.color + '" opacity="' + opacity + '"' + transform + '/>'
+        return '<ellipse cx="' + (x + w / 2) + '" cy="' + (y + h / 2) + '" rx="' + (w / 2) + '" ry="' + (h / 2) + '" fill="' + layer.color + '" opacity="' + opacity + '"' + transform + '/>'
+      }
+      if (layer.type === 'image') return '<image href="' + layer.src + '" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" preserveAspectRatio="' + (layer.fit === 'cover' ? 'xMidYMid slice' : 'xMidYMid meet') + '"' + transform + '/>'
+      const lines = String(layer.text || '').split('\n')
+      const fontSize = layer.fontSize / 100 * width * 1.05
+      const lineHeight = fontSize * 1.05
+      const anchor = layer.align === 'center' ? 'middle' : layer.align === 'right' ? 'end' : 'start'
+      const tx = layer.align === 'center' ? x + w / 2 : layer.align === 'right' ? x + w : x
+      return '<g' + transform + '>' + lines.map((line, i) => '<text x="' + tx + '" y="' + (y + fontSize + i * lineHeight) + '" font-family="' + escapeXml(layer.fontFamily || 'DM Sans') + ',Arial,sans-serif" font-size="' + fontSize + '" font-weight="' + (layer.fontWeight || 600) + '" text-anchor="' + anchor + '" fill="' + (layer.color || '#292336') + '">' + escapeXml(line) + '</text>').join('') + '</g>'
+    }).join('')
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '">' + background + contents + '</svg>'
+  }
+  async function makePngBlob() {
+    const svg = svgMarkup()
+    const svgBlob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' })
+    const url = URL.createObjectURL(svgBlob)
+    try {
+      const img = new Image()
+      img.src = url
+      await img.decode()
+      const canvas = document.createElement('canvas')
+      canvas.width = 1080
+      canvas.height = format === 'Stories' ? 1920 : 1080
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      return await new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
+    } finally { URL.revokeObjectURL(url) }
+  }
+  async function downloadPng() {
+    try {
+      const blob = await makePngBlob()
+      if (!blob) throw new Error('Não foi possível gerar PNG')
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = (designName || 'packe-design').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.png'
+      a.click()
+      URL.revokeObjectURL(url)
+      setNotice('PNG exportado em alta resolução (1080 px).')
+    } catch (error) { setNotice('Não foi possível exportar esta arte. Tente remover a imagem e adicioná-la novamente.') }
+  }
+  async function downloadZip() {
+    try {
+      const zip = new JSZip()
+      const png = await makePngBlob()
+      zip.file('arte-principal.png', png)
+      zip.file('arte-editavel.svg', svgMarkup())
+      zip.file('projeto-packe.json', JSON.stringify({ name: designName, format, background: { color: bgColor, color2: bgColor2, mode: bgMode }, layers }, null, 2))
+      if (format === 'Carrossel') {
+        for (let i = 2; i <= carouselCount; i++) {
+          const svg = svgMarkup(i).replace('</svg>', '<text x="1000" y="1030" text-anchor="end" font-family="Arial" font-size="24" fill="#292336">' + i + '/' + carouselCount + '</text></svg>')
+          zip.file('carrossel/slide-' + String(i).padStart(2, '0') + '.svg', svg)
+        }
+      }
+      const blob = await zip.generateAsync({ type: 'blob' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = (designName || 'packe-projeto').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.zip'
+      a.click()
+      URL.revokeObjectURL(url)
+      setNotice('ZIP gerado com PNG, SVG editável e arquivo do projeto.')
+    } catch (error) { setNotice('Não foi possível gerar o ZIP. Tente novamente.') }
+  }
+  function resetEditor() {
+    setLayers(makeLayers(selected))
+    setSelectedLayer(null)
+    setBgColor(selected.color)
+    setBgColor2('#fff0dc')
+    setBgMode('gradient')
+    setNotice('Modelo restaurado.')
+  }
+  function addToFavorites(pack) {
+    setFavorites(old => old.includes(pack.id) ? old.filter(id => id !== pack.id) : [...old, pack.id])
+  }
+  function renderLayer(layer) {
+    const selectedClass = selectedLayer === layer.id ? 'design-layer selected-layer' : 'design-layer'
+    const style = { left: layer.x + '%', top: layer.y + '%', width: layer.w + '%', height: layer.h + '%', transform: 'rotate(' + layer.rotation + 'deg)', color: layer.color, fontSize: 'clamp(9px, ' + (layer.fontSize || 3) + 'cqw, 64px)', fontFamily: layer.fontFamily || 'DM Sans', fontWeight: layer.fontWeight || 600, textAlign: layer.align || 'left', opacity: layer.opacity == null ? 1 : layer.opacity }
+    return <div key={layer.id} className={selectedClass} style={style} onPointerDown={e => startAction(e, layer)} onClick={e => { e.stopPropagation(); setSelectedLayer(layer.id) }} title="Arraste para mover">
+      {layer.type === 'text' && <span className="layer-text">{layer.text}</span>}
+      {layer.type === 'image' && <img draggable="false" src={layer.src} alt={layer.name} style={{ objectFit: layer.fit || 'contain' }} />}
+      {layer.type === 'shape' && <span className={'layer-shape ' + (layer.shape === 'rect' ? 'shape-rect' : 'shape-circle')} style={{ background: layer.color, opacity: layer.opacity == null ? 1 : layer.opacity }} />}
+      {selectedLayer === layer.id && <><span className="layer-label">{layer.name}</span><button className="resize-handle" aria-label="Redimensionar elemento" onPointerDown={e => startAction(e, layer, 'resize')} /></>}
+    </div>
   }
 
   return <div className="app-shell">
     <header className="topbar">
       <a className="brand" href="#" aria-label="Packê início"><span className="brand-mark"><Sparkles size={21} /></span><span>packê<span className="brand-dot">.</span></span></a>
-      <nav className="main-nav"><a className="nav-active" href="#catalogo">Explorar packs</a><a href="#editor">Editor</a><a href="#como-funciona">Como funciona</a></nav>
-      <button className="top-cta" onClick={() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })}>Começar grátis <ArrowUpRight size={16} /></button>
+      <nav className="main-nav"><a className="nav-active" href="#catalogo">Catálogo</a><a href="#editor">Editor</a><a href="#como-funciona">Como funciona</a></nav>
+      <button className="top-cta" onClick={() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })}>Criar design <ArrowUpRight size={16} /></button>
     </header>
-
     <main>
       <section className="hero">
-        <div className="hero-copy">
-          <div className="eyebrow"><span className="eyebrow-dot" /> SEU INSTAGRAM, SUA VIBE</div>
-          <h1>Ideias incríveis.<br /><span>Posts com sua cara.</span></h1>
-          <p>Encontre packs criativos, personalize do seu jeito e deixe seu feed com a sua personalidade. Sem complicação.</p>
-          <div className="hero-actions"><button className="primary-btn" onClick={() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })}>Explorar packs <ArrowUpRight size={18} /></button><span className="free-note"><Check size={15} /> Comece de graça</span></div>
-          <div className="hero-proof"><div className="avatar-stack"><span>🎨</span><span>💖</span><span>✨</span></div><div><strong>Seu próximo post começa aqui</strong><small>Inspire-se. Personalize. Publique.</small></div></div>
-        </div>
-        <div className="hero-art" aria-label="Exemplos coloridos de posts para Instagram">
-          <div className="sticker sticker-spark">✦</div><div className="sticker sticker-heart">♥</div>
-          <div className="poster poster-back"><span className="poster-mini">IDEIAS QUE</span><strong>VIRAM<br />CONTEÚDO</strong><span className="poster-bottom">✳ CRIATIVIDADE TODO DIA</span></div>
-          <div className="poster poster-front"><div className="poster-pill">SEU NOVO FAVORITO</div><div className="poster-sun">✺</div><strong>CRIE<br />DO SEU<br /><em>JEITO.</em></strong><span className="poster-footer">um post de cada vez ↗</span></div>
-          <div className="hero-caption"><span className="caption-icon"><Palette size={17} /></span><span><b>100% personalizável</b><small>Cores, textos e muito mais</small></span></div>
-        </div>
+        <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-dot" /> SEU INSTAGRAM, SUA VIBE</div><h1>Seu conteúdo.<br /><span>Suas regras.</span></h1><p>Escolha um modelo, mova cada elemento e personalize imagens, cores, textos e logotipos. O design fica do seu jeito.</p><div className="hero-actions"><button className="primary-btn" onClick={() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })}>Explorar modelos <ArrowUpRight size={18} /></button><span className="free-note"><Check size={15} /> Modelos de demonstração</span></div><div className="hero-proof"><div className="avatar-stack"><span>🎨</span><span>💖</span><span>✨</span></div><div><strong>Crie sem ficar preso ao modelo</strong><small>Mova · Redimensione · Personalize</small></div></div></div>
+        <div className="hero-art" aria-label="Demonstração de modelos para Instagram"><div className="sticker sticker-spark">✦</div><div className="sticker sticker-heart">♥</div><div className="poster poster-back"><span className="poster-mini">IDEIAS QUE</span><strong>VIRAM<br />CONTEÚDO</strong><span className="poster-bottom">✳ CRIATIVIDADE TODO DIA</span></div><div className="poster poster-front"><div className="poster-pill">100% PERSONALIZÁVEL</div><div className="poster-sun">✺</div><strong>CRIE<br />DO SEU<br /><em>JEITO.</em></strong><span className="poster-footer">um post de cada vez ↗</span></div><div className="hero-caption"><span className="caption-icon"><Move size={17} /></span><span><b>Você controla cada elemento</b><small>Posição, tamanho, giro e mais</small></span></div></div>
       </section>
 
       <section className="catalog-section" id="catalogo">
-        <div className="section-heading"><div><div className="eyebrow">UM MUNDO DE POSSIBILIDADES</div><h2>Qual é a sua vibe hoje?</h2><p>Escolha um pack e transforme sua ideia em post.</p></div><div className="catalog-count"><span>{filtered.length.toString().padStart(2, '0')}</span> packs para explorar</div></div>
-        <div className="catalog-tools"><div className="category-tabs">{categories.map(category => <button key={category} className={activeCategory === category ? 'category-tab active' : 'category-tab'} onClick={() => setActiveCategory(category)}>{category}</button>)}</div><label className="search-box"><Search size={17} /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Buscar um pack..." aria-label="Buscar um pack" /></label></div>
+        <div className="section-heading"><div><div className="eyebrow">CATÁLOGO DE DEMONSTRAÇÃO</div><h2>Encontre seu ponto de partida.</h2><p>Explore por nicho, estilo e formato. Todos os modelos abaixo são exemplos iniciais.</p></div><div className="catalog-count"><span>{filtered.length.toString().padStart(2, '0')}</span> modelos</div></div>
+        <div className="catalog-filters">
+          <label className="filter-select"><span>Nicho</span><select value={activeNiche} onChange={e => setActiveNiche(e.target.value)}>{niches.map(n => <option key={n}>{n}</option>)}</select></label>
+          <label className="filter-select"><span>Estilo</span><select value={activeStyle} onChange={e => setActiveStyle(e.target.value)}>{styles.map(s => <option key={s}>{s}</option>)}</select></label>
+          <label className="filter-select"><span>Formato</span><select value={activeFormat} onChange={e => setActiveFormat(e.target.value)}>{['Todos', ...formats].map(f => <option key={f}>{f}</option>)}</select></label>
+          <label className="search-box"><Search size={17} /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Buscar modelo..." aria-label="Buscar modelo" /></label>
+        </div>
         <div className="pack-grid">{filtered.map(pack => <article className="pack-card" key={pack.id}>
-          <button className="favorite-btn" aria-label={favorites.includes(pack.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'} onClick={() => setFavorites(old => old.includes(pack.id) ? old.filter(id => id !== pack.id) : [...old, pack.id])}><Heart size={17} fill={favorites.includes(pack.id) ? 'currentColor' : 'none'} /></button>
-          <button className="pack-preview-button" onClick={() => choosePack(pack)} aria-label={'Editar pack ' + pack.name}><div className="pack-art" style={{ background: pack.bg }}><span className="pack-tag">{pack.tag}</span><span className="pack-deco">{pack.shape === 'circle' ? '✳' : '✦'}</span><strong>{pack.title.split('\n').map((line, i) => <React.Fragment key={line}>{i > 0 && <br />}{line}</React.Fragment>)}</strong><small>{pack.subtitle}</small><span className="art-brand">PACKÊ ✦</span></div></button>
-          <div className="pack-info"><div><h3>{pack.name}</h3><p>{pack.category}</p></div><span className="price-label">{pack.price}</span></div>
-          <button className="edit-pack-btn" onClick={() => { choosePack(pack); document.getElementById('editor')?.scrollIntoView({ behavior: 'smooth' }) }}>Personalizar <ArrowUpRight size={15} /></button>
+          <button className="favorite-btn" aria-label={favorites.includes(pack.id) ? 'Remover favorito' : 'Adicionar favorito'} onClick={() => addToFavorites(pack)}><Heart size={17} fill={favorites.includes(pack.id) ? 'currentColor' : 'none'} /></button>
+          <button className="pack-preview-button" onClick={() => setDetailsPack(pack)} aria-label={'Ver detalhes de ' + pack.name}><div className="pack-art" style={{ background: 'linear-gradient(145deg,' + pack.color + ',#fff0dc)' }}><span className="pack-tag">{pack.tag}</span><span className="pack-deco">✦</span><strong>{pack.title.split('\n').map((line, i) => <React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>)}</strong><small>{pack.subtitle}</small><span className="art-brand">PACKÊ ✦</span></div></button>
+          <div className="pack-info"><div><h3>{pack.name}</h3><p>{pack.niche} · {pack.style}</p></div><span className="price-label">Grátis · Demo</span></div>
+          <div className="pack-meta"><span><Square size={12} /> {pack.format}</span><span>{pack.price === 0 ? 'Sem custo' : 'R$ ' + pack.price.toFixed(2)}</span></div>
+          <button className="edit-pack-btn" onClick={() => choosePack(pack)}>Abrir no editor <ArrowUpRight size={15} /></button>
         </article>)}</div>
-        {filtered.length === 0 && <div className="empty-state"><Search size={28} /><h3>Nenhum pack por aqui</h3><p>Tente outra busca ou categoria.</p><button onClick={() => { setQuery(''); setActiveCategory('Todos') }}>Limpar filtros</button></div>}
+        {filtered.length === 0 && <div className="empty-state"><Search size={28} /><h3>Nenhum modelo encontrado</h3><p>Altere os filtros para ver outras opções.</p><button onClick={() => { setQuery(''); setActiveNiche('Todos'); setActiveStyle('Todos'); setActiveFormat('Todos') }}>Limpar filtros</button></div>}
       </section>
 
+      {detailsPack && <div className="details-backdrop" onClick={e => { if (e.target === e.currentTarget) setDetailsPack(null) }}><section className="details-modal" role="dialog" aria-modal="true"><button className="auth-close" aria-label="Fechar detalhes" onClick={() => setDetailsPack(null)}><X size={18} /></button><div className="pack-art details-art" style={{ background: 'linear-gradient(145deg,' + detailsPack.color + ',#fff0dc)' }}><span className="pack-tag">Modelo de demonstração</span><strong>{detailsPack.title.split('\n').map((line, i) => <React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>)}</strong><small>{detailsPack.subtitle}</small></div><div className="eyebrow">{detailsPack.niche} · {detailsPack.style}</div><h2>{detailsPack.name}</h2><p>Modelo inicial para você personalizar. Edite os textos, adicione suas imagens e logotipo, e mova os elementos livremente no editor.</p><div className="details-price"><strong>Grátis</strong><span>Modelo demonstrativo · {detailsPack.format}</span></div><button className="download-btn" onClick={() => { choosePack(detailsPack); setDetailsPack(null) }}>Personalizar este modelo <ArrowUpRight size={17} /></button></section></div>}
+
       <section className="editor-section" id="editor">
-        <div className="section-heading editor-heading"><div><div className="eyebrow">SEU TOQUE FINAL</div><h2>Deixe com a sua cara.</h2><p>Teste as mudanças ao vivo e crie uma versão sua.</p></div><div className="editor-badge"><Sparkles size={16} /> Editor inicial</div></div>
+        <div className="section-heading editor-heading"><div><div className="eyebrow">EDITOR VISUAL</div><h2>Edite absolutamente tudo.</h2><p>Selecione um elemento na arte para mover, redimensionar, girar ou alterar as propriedades.</p></div><div className="editor-badge"><Move size={16} /> Editor manual</div></div>
         <div className="editor-layout">
-          <div className="editor-preview-wrap"><div className="preview-toolbar"><span><span className="live-dot" /> PRÉVIA AO VIVO</span><span>Post quadrado · 1:1</span></div><div className="editor-canvas" style={{ background: `linear-gradient(145deg, ${customColor}, #fff0dc)` }}><span className="canvas-orb orb-one" /><span className="canvas-orb orb-two" /><span className="canvas-star">✦</span><div className="canvas-content"><strong>{customTitle.split('\n').map((line, i) => <React.Fragment key={i}>{i > 0 && <br />}{line || 'SUA IDEIA'}</React.Fragment>)}</strong><p>{customSubtitle || 'Escreva uma frase que tenha a sua cara.'}</p><span className="canvas-brand">FEITO COM PACKÊ ✦</span></div></div><div className="preview-foot"><span><Check size={15} /> Alterações aparecem na hora</span><button onClick={() => { setCustomTitle(selected.title); setCustomSubtitle(selected.subtitle); setCustomColor(selected.color); setNotice('') }}><RotateCcw size={14} /> Restaurar</button></div></div>
-          <div className="editor-controls"><div className="control-title"><div className="control-icon"><LayoutGrid size={18} /></div><div><h3>Personalize seu post</h3><p>Escolha um pack para começar</p></div></div><label className="field-label">PACK BASE</label><select className="pack-select" value={selected.id} onChange={e => choosePack(packs.find(p => p.id === Number(e.target.value)))}>{packs.map(pack => <option key={pack.id} value={pack.id}>{pack.name}</option>)}</select>
-            <label className="field-label" htmlFor="post-title"><Type size={14} /> TEXTO PRINCIPAL</label><textarea id="post-title" className="text-field title-field" rows="2" maxLength="70" value={customTitle} onChange={e => setCustomTitle(e.target.value)} /><label className="field-label" htmlFor="post-subtitle">SUBTÍTULO</label><input id="post-subtitle" className="text-field" maxLength="100" value={customSubtitle} onChange={e => setCustomSubtitle(e.target.value)} placeholder="Sua frase aqui..." />
-            <div className="color-label-row"><label className="field-label">COR DE DESTAQUE</label><span className="color-hex">{customColor.toUpperCase()}</span></div><div className="color-options">{['#ff6b6b','#a78bfa','#fb923c','#f472b6','#2dd4bf','#818cf8','#facc15','#202033'].map(color => <button key={color} className={customColor === color ? 'color-swatch selected' : 'color-swatch'} style={{ background: color }} aria-label={'Selecionar cor ' + color} onClick={() => setCustomColor(color)}>{customColor === color && <Check size={15} color={color === '#facc15' ? '#202033' : '#fff'} />}</button>)}</div>
-            <button className="download-btn" onClick={downloadDesign}><Download size={17} /> Baixar meu design <ArrowUpRight size={17} /></button>{notice && <p className="notice"><Check size={15} /> {notice}</p>}<p className="editor-disclaimer">Esta é a primeira versão do editor. O download atual é SVG; exportação PNG e salvamento de projetos podem entrar nas próximas etapas.</p>
+          <div className="editor-preview-wrap">
+            <div className="preview-toolbar"><span><span className="live-dot" /> ÁREA DE EDIÇÃO</span><span>{format} · {format === 'Stories' ? '9:16' : '1:1'}</span></div>
+            <div className="canvas-stage"><div ref={canvasRef} className={'editor-canvas live-canvas ' + (format === 'Stories' ? 'story-canvas' : '')} style={{ aspectRatio: ratio, maxHeight: canvasHeight + 'px', background: bgMode === 'solid' ? bgColor : 'linear-gradient(145deg,' + bgColor + ',' + bgColor2 + ')' }} onPointerDown={e => { if (e.target === e.currentTarget) setSelectedLayer(null) }}>
+              <div className="canvas-safe-guides" />
+              {layers.map(renderLayer)}
+            </div></div>
+            <div className="format-tabs">{formats.map(f => <button key={f} className={format === f ? 'format-tab active' : 'format-tab'} onClick={() => { setFormat(f); setSelectedLayer(null) }}>{f === 'Stories' ? <Smartphone size={15} /> : f === 'Carrossel' ? <Layers size={15} /> : <Square size={15} />}{f}</button>)}</div>
+            {format === 'Carrossel' && <div className="carousel-options"><label>Quantidade de slides <select value={carouselCount} onChange={e => setCarouselCount(Number(e.target.value))}>{[2,3,4,5,6,7,8,9,10].map(n => <option key={n}>{n}</option>)}</select></label><span>Slide principal: {slideIndex} de {carouselCount}</span><input type="range" min="1" max={carouselCount} value={slideIndex} onChange={e => setSlideIndex(Number(e.target.value))} /></div>}
+            <div className="preview-foot"><span><Check size={15} /> Arraste os elementos diretamente na arte</span><button onClick={resetEditor}><RotateCcw size={14} /> Restaurar modelo</button></div>
+          </div>
+          <div className="editor-controls">
+            <div className="control-title"><div className="control-icon"><LayoutGrid size={18} /></div><div><h3>Personalização completa</h3><p>Modelo: {selected.name}</p></div></div>
+            <label className="field-label" htmlFor="design-name">NOME DO PROJETO</label><input id="design-name" className="text-field" value={designName} onChange={e => setDesignName(e.target.value)} />
+            <div className="field-label"><Palette size={14} /> FUNDO DA ARTE</div><div className="background-controls"><label>Cor principal <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)} /></label><label>Cor secundária <input type="color" value={bgColor2} onChange={e => setBgColor2(e.target.value)} /></label></div><div className="bg-mode-row"><button className={bgMode === 'gradient' ? 'mini-choice active' : 'mini-choice'} onClick={() => setBgMode('gradient')}>Degradê</button><button className={bgMode === 'solid' ? 'mini-choice active' : 'mini-choice'} onClick={() => setBgMode('solid')}>Cor sólida</button></div>
+            <div className="element-actions"><button onClick={addText}><Type size={15} /> Texto</button><button onClick={addShape}><Plus size={15} /> Forma</button><button onClick={() => fileRef.current?.click()}><ImagePlus size={15} /> Imagem</button><button onClick={() => logoRef.current?.click()}><Upload size={15} /> Logotipo</button><input ref={fileRef} type="file" accept="image/*" hidden onChange={e => { addImage(e.target.files?.[0], 'image'); e.target.value = '' }} /><input ref={logoRef} type="file" accept="image/*" hidden onChange={e => { addImage(e.target.files?.[0], 'logo'); e.target.value = '' }} /></div>
+            <div className="layers-header"><span><Layers size={14} /> CAMADAS ({layers.length})</span><small>Selecione para editar</small></div>
+            <div className="layers-list">{layers.map(layer => <button key={layer.id} className={selectedLayer === layer.id ? 'layer-row active' : 'layer-row'} onClick={() => setSelectedLayer(layer.id)}><span className="layer-type-icon">{layer.type === 'text' ? <Type size={14} /> : layer.type === 'image' ? <ImagePlus size={14} /> : <Square size={14} />}</span><span>{layer.name}</span><small>{Math.round(layer.w)}×{Math.round(layer.h)}</small></button>)}</div>
+            {currentLayer ? <div className="selected-properties">
+              <div className="selected-title"><strong>Editar: {currentLayer.name}</strong><button aria-label="Excluir elemento" onClick={() => { setLayers(old => old.filter(layer => layer.id !== currentLayer.id)); setSelectedLayer(null) }}><Trash2 size={15} /></button></div>
+              {currentLayer.type === 'text' && <><label className="field-label" htmlFor="layer-text">TEXTO</label><textarea id="layer-text" className="text-field title-field" rows="3" value={currentLayer.text} onChange={e => updateLayer(currentLayer.id, { text: e.target.value })} /><label className="field-label">TIPOGRAFIA</label><select className="pack-select" value={currentLayer.fontFamily} onChange={e => updateLayer(currentLayer.id, { fontFamily: e.target.value })}><option>DM Sans</option><option>Manrope</option><option>Arial</option><option>Georgia</option><option>Impact</option><option>Courier New</option></select><label className="field-label">ALINHAMENTO</label><div className="bg-mode-row">{['left','center','right'].map(a => <button key={a} className={currentLayer.align === a ? 'mini-choice active' : 'mini-choice'} onClick={() => updateLayer(currentLayer.id, { align: a })}>{a === 'left' ? 'Esquerda' : a === 'center' ? 'Centro' : 'Direita'}</button>)}</div><label className="field-label">PESO DA FONTE</label><select className="pack-select" value={currentLayer.fontWeight} onChange={e => updateLayer(currentLayer.id, { fontWeight: Number(e.target.value) })}><option value="400">Normal</option><option value="600">Seminegrito</option><option value="700">Negrito</option><option value="900">Extra negrito</option></select><label className="field-label">TAMANHO DO TEXTO</label><input type="range" min="1.5" max="14" step=".5" value={currentLayer.fontSize} onChange={e => updateLayer(currentLayer.id, { fontSize: Number(e.target.value) })} /></>}
+              {currentLayer.type === 'image' && <><label className="field-label">AJUSTE DA IMAGEM</label><select className="pack-select" value={currentLayer.fit} onChange={e => updateLayer(currentLayer.id, { fit: e.target.value })}><option value="contain">Mostrar imagem inteira</option><option value="cover">Preencher área (cortar)</option></select><button className="secondary-action" onClick={() => (currentLayer.name === 'Logotipo' ? logoRef.current : fileRef.current).current?.click()}><Upload size={14} /> Trocar arquivo</button></>}
+              <div className="property-grid"><label>Cor <input type="color" value={currentLayer.color || '#ffffff'} onChange={e => updateLayer(currentLayer.id, { color: e.target.value })} disabled={currentLayer.type === 'image'} /></label><label>Rotação <input type="number" min="-180" max="180" value={currentLayer.rotation} onChange={e => updateLayer(currentLayer.id, { rotation: Number(e.target.value) })} /></label><label>Posição X % <input type="number" min="0" max="100" value={Math.round(currentLayer.x)} onChange={e => updateLayer(currentLayer.id, { x: Math.max(0, Math.min(100-currentLayer.w, Number(e.target.value))) })} /></label><label>Posição Y % <input type="number" min="0" max="100" value={Math.round(currentLayer.y)} onChange={e => updateLayer(currentLayer.id, { y: Math.max(0, Math.min(100-currentLayer.h, Number(e.target.value))) })} /></label><label>Largura % <input type="number" min="5" max="100" value={Math.round(currentLayer.w)} onChange={e => updateLayer(currentLayer.id, { w: Math.max(5, Math.min(100-currentLayer.x, Number(e.target.value))) })} /></label><label>Altura % <input type="number" min="3" max="100" value={Math.round(currentLayer.h)} onChange={e => updateLayer(currentLayer.id, { h: Math.max(3, Math.min(100-currentLayer.y, Number(e.target.value))) })} /></label></div>
+              <div className="selected-footer"><button onClick={() => updateLayer(currentLayer.id, { rotation: (currentLayer.rotation + 15) % 360 })}><RotateCw size={14} /> Girar +15°</button><button onClick={() => setLayers(old => { const rest = old.filter(l => l.id !== currentLayer.id); return [...rest, currentLayer] })}><BringToFront size={14} /> Trazer à frente</button></div>
+            </div> : <div className="no-selection"><Move size={20} /><strong>Nenhum elemento selecionado</strong><span>Clique em uma camada ou toque no elemento da arte para editar.</span></div>}
+            <div className="export-actions"><button className="download-btn" onClick={downloadPng}><Download size={17} /> Baixar PNG <ArrowUpRight size={17} /></button><button className="zip-btn" onClick={downloadZip}><FileArchive size={17} /> Exportar projeto em ZIP</button></div>
+            {notice && <p className="notice"><Check size={15} /> {notice}</p>}<p className="editor-disclaimer">Os projetos ficam nesta sessão até você exportar. Salvamento permanente na conta será ligado numa próxima etapa.</p>
           </div>
         </div>
       </section>
-
-      <section className="how-section" id="como-funciona"><div className="eyebrow">SEM MISTÉRIO</div><h2>Do “tive uma ideia” ao post pronto.</h2><div className="steps-grid"><div className="step-card"><span>01</span><div className="step-icon">🧃</div><h3>Escolha seu pack</h3><p>Encontre um estilo que combina com seu perfil e seu momento.</p></div><div className="step-card"><span>02</span><div className="step-icon">🎨</div><h3>Coloque sua vibe</h3><p>Edite o texto e experimente cores até ficar do seu jeito.</p></div><div className="step-card"><span>03</span><div className="step-icon">📲</div><h3>Leve para o feed</h3><p>Baixe sua criação e prepare o próximo post com personalidade.</p></div></div></section>
+      <section className="how-section" id="como-funciona"><div className="eyebrow">VOCÊ NO CONTROLE</div><h2>Monte do seu jeito.</h2><div className="steps-grid"><div className="step-card"><span>01</span><div className="step-icon">🧩</div><h3>Escolha o modelo</h3><p>Filtre por nicho, estilo e formato para achar um ponto de partida.</p></div><div className="step-card"><span>02</span><div className="step-icon">🎨</div><h3>Edite cada camada</h3><p>Mova, redimensione, gire, troque cores e adicione imagens ou logotipo.</p></div><div className="step-card"><span>03</span><div className="step-icon">📦</div><h3>Exporte sua arte</h3><p>Baixe em PNG ou leve o projeto e os arquivos em um ZIP.</p></div></div></section>
     </main>
-    <footer className="footer"><a className="brand" href="#"><span className="brand-mark"><Sparkles size={18} /></span><span>packê<span className="brand-dot">.</span></span></a><span>Feito para suas ideias brilharem ✦</span><span>© 2026 Packê · Projeto em construção</span></footer>
+    <footer className="footer"><a className="brand" href="#"><span className="brand-mark"><Sparkles size={18} /></span><span>packê<span className="brand-dot">.</span></span></a><span>Feito para suas ideias brilharem ✦</span><span>© 2026 Packê · Em construção</span></footer>
   </div>
 }
-
 createRoot(document.getElementById('root')).render(<App />)
