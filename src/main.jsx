@@ -70,7 +70,7 @@ function App() {
     setBgColor2('#fff0dc')
     setLayers(makeLayers(pack))
     setSelectedLayer(null)
-    setFormat(pack.format === 'Carrossel' ? 'Feed' : pack.format)
+    setFormat(pack.format)
     setDesignName(pack.name)
     setNotice('')
     document.getElementById('editor')?.scrollIntoView({ behavior: 'smooth' })
@@ -324,15 +324,15 @@ function App() {
           </div>
           <div className="editor-controls">
             <div className="control-title"><div className="control-icon"><LayoutGrid size={18} /></div><div><h3>Personalização completa</h3><p>Modelo: {selected.name}</p></div></div>
-            <div className="auto-pack-panel">
-              <div className="auto-pack-heading"><WandSparkles size={17} /><div><strong>Gerar pack automático</strong><small>Escolha as opções e receba uma arte editável.</small></div></div>
+            <details className="auto-pack-panel">
+              <summary className="auto-pack-heading"><WandSparkles size={17} /><div><strong>Gerar pack automático</strong><small>Escolha nicho, estilo e formato para montar uma arte.</small></div><span className="auto-pack-chevron">⌄</span></summary>
               <div className="auto-pack-fields">
                 <label>Nicho<select value={autoNiche} onChange={e => setAutoNiche(e.target.value)}>{niches.filter(n => n !== 'Todos').map(n => <option key={n}>{n}</option>)}</select></label>
                 <label>Estilo<select value={autoStyle} onChange={e => setAutoStyle(e.target.value)}>{styles.filter(s => s !== 'Todos').map(s => <option key={s}>{s}</option>)}</select></label>
                 <label>Formato<select value={autoFormat} onChange={e => setAutoFormat(e.target.value)}>{formats.map(f => <option key={f}>{f}</option>)}</select></label>
               </div>
               <button className="generate-pack-btn" onClick={generatePack}><WandSparkles size={16} /> Gerar meu pack</button>
-            </div>
+            </details>
             <label className="field-label" htmlFor="design-name">NOME DO PROJETO</label><input id="design-name" className="text-field" value={designName} onChange={e => setDesignName(e.target.value)} />
             <div className="field-label"><Palette size={14} /> FUNDO DA ARTE</div><div className="background-controls"><label>Cor principal <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)} /></label><label>Cor secundária <input type="color" value={bgColor2} onChange={e => setBgColor2(e.target.value)} /></label></div><div className="bg-mode-row"><button className={bgMode === 'gradient' ? 'mini-choice active' : 'mini-choice'} onClick={() => setBgMode('gradient')}>Degradê</button><button className={bgMode === 'solid' ? 'mini-choice active' : 'mini-choice'} onClick={() => setBgMode('solid')}>Cor sólida</button></div>
             <div className="element-actions"><button onClick={addText}><Type size={15} /> Texto</button><button onClick={addShape}><Plus size={15} /> Forma</button><button onClick={() => { replaceTargetRef.current = null; fileRef.current?.click() }}><ImagePlus size={15} /> Imagem</button><button onClick={() => { replaceTargetRef.current = null; logoRef.current?.click() }}><Upload size={15} /> Logotipo</button><input ref={fileRef} type="file" accept="image/*" hidden onChange={e => { addImage(e.target.files?.[0], 'image', replaceTargetRef.current); replaceTargetRef.current = null; e.target.value = '' }} /><input ref={logoRef} type="file" accept="image/*" hidden onChange={e => { addImage(e.target.files?.[0], 'logo', replaceTargetRef.current); replaceTargetRef.current = null; e.target.value = '' }} /></div>
