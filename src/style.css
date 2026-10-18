@@ -111,3 +111,10 @@
 .pack-info h3{line-height:1.35}
 @media(min-width:800px){.auto-pack-fields{grid-template-columns:1fr;}.auto-pack-fields select{max-width:220px}}
 @media(max-width:650px){.auto-pack-panel{padding:12px}.auto-pack-fields label{font-size:10px}.auto-pack-fields select{max-width:62%}}
+
+.brand-letter{font-family:Manrope,Arial,sans-serif;font-weight:900;font-size:19px;letter-spacing:-1px;line-height:1}
+.pack-card .pack-art strong,.details-art strong{text-shadow:0 1px 18px #211a2a24}
+.pack-card .pack-art small,.details-art small{text-shadow:0 1px 12px #211a2a30}
+.auto-pack-panel{box-shadow:none}
+.auto-pack-fields select:focus{outline:2px solid #d8ceff;outline-offset:1px}
+.generate-pack-btn:focus-visible,.format-tab:focus-visible,.edit-pack-btn:focus-visible{outline:3px solid #c4b5fd;outline-offset:2px}
