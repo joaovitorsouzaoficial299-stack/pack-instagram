@@ -118,3 +118,15 @@
 .auto-pack-panel{box-shadow:none}
 .auto-pack-fields select:focus{outline:2px solid #d8ceff;outline-offset:1px}
 .generate-pack-btn:focus-visible,.format-tab:focus-visible,.edit-pack-btn:focus-visible{outline:3px solid #c4b5fd;outline-offset:2px}
+
+.auto-pack-panel{padding:0;overflow:hidden}
+.auto-pack-heading{padding:14px;cursor:pointer;list-style:none}
+.auto-pack-heading::-webkit-details-marker{display:none}
+.auto-pack-heading::marker{content:""}
+.auto-pack-chevron{margin-left:auto;font-size:19px;color:#8b8292;transition:transform .15s}
+.auto-pack-panel[open] .auto-pack-chevron{transform:rotate(180deg)}
+.auto-pack-panel[open] .auto-pack-heading{border-bottom:1px solid #eee7ee}
+.auto-pack-panel .auto-pack-fields,.auto-pack-panel .generate-pack-btn{margin-left:14px;margin-right:14px;width:calc(100% - 28px)}
+.auto-pack-panel .generate-pack-btn{margin-bottom:14px}
+.shape-line{border:0!important;background:transparent!important}
+.shape-line:after{background:currentColor!important}
