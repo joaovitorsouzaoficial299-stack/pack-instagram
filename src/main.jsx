@@ -53,6 +53,7 @@ function App() {
   const fileRef = useRef(null)
   const logoRef = useRef(null)
   const actionRef = useRef(null)
+  const replaceTargetRef = useRef(null)
 
   const filtered = useMemo(() => packs.filter(pack =>
     (activeNiche === 'Todos' || pack.niche === activeNiche) &&
@@ -110,18 +111,23 @@ function App() {
     setLayers([...newLayers, accent]); setSelectedLayer(null)
     setNotice('Pack criado. Edite os elementos ou troque a foto antes de exportar.')
   }
-  function addImage(file, type = 'image') {
+  function addImage(file, type = 'image', replaceId = null) {
     if (!file) return
     if (!file.type.startsWith('image/')) { setNotice('Escolha um arquivo de imagem válido.'); return }
     if (file.size > 8 * 1024 * 1024) { setNotice('A imagem precisa ter até 8 MB.'); return }
     const reader = new FileReader()
     reader.onload = () => {
-      const layer = { id: uid(), type: 'image', name: type === 'logo' ? 'Logotipo' : file.name.replace(/\.[^.]+$/, ''), src: reader.result, x: type === 'logo' ? 8 : 27, y: type === 'logo' ? 6 : 27, w: type === 'logo' ? 22 : 46, h: type === 'logo' ? 10 : 42, rotation: 0, fit: 'contain' }
-      setLayers(old => [...old, layer])
+      const existing = replaceId ? layers.find(item => item.id === replaceId) : null
+      const layer = { id: replaceId || uid(), type: 'image', name: type === 'logo' ? 'Logotipo' : (existing?.name || file.name.replace(/\.[^.]+$/, '')), src: reader.result, x: existing?.x ?? (type === 'logo' ? 8 : 27), y: existing?.y ?? (type === 'logo' ? 6 : 27), w: existing?.w ?? (type === 'logo' ? 22 : 46), h: existing?.h ?? (type === 'logo' ? 10 : 42), rotation: existing?.rotation ?? 0, fit: existing?.fit || 'contain', opacity: existing?.opacity ?? 1 }
+      setLayers(old => replaceId ? old.map(item => item.id === replaceId ? layer : item) : [...old, layer])
       setSelectedLayer(layer.id)
       setNotice(type === 'logo' ? 'Logotipo adicionado. Você pode mover e redimensionar.' : 'Imagem adicionada. Você pode mover e redimensionar.')
     }
     reader.readAsDataURL(file)
+  }
+  function replaceImage(layer) {
+    replaceTargetRef.current = layer.id
+    ;(layer.name === 'Logotipo' ? logoRef : fileRef).current?.click()
   }
   function startAction(event, layer, mode = 'move') {
     event.preventDefault()
@@ -274,13 +280,13 @@ function App() {
 
   return <div className="app-shell">
     <header className="topbar">
-      <a className="brand" href="#" aria-label="Packê início"><span className="brand-mark"><Sparkles size={21} /></span><span>packê<span className="brand-dot">.</span></span></a>
+      <a className="brand" href="#" aria-label="Packê início"><span className="brand-mark brand-letter">P</span><span>packê<span className="brand-dot">.</span></span></a>
       <nav className="main-nav"><a className="nav-active" href="#catalogo">Catálogo</a><a href="#editor">Editor</a><a href="#como-funciona">Como funciona</a></nav>
       <button className="top-cta" onClick={() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })}>Criar design <ArrowUpRight size={16} /></button>
     </header>
     <main>
       <section className="hero">
-        <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-dot" /> SEU INSTAGRAM, SUA VIBE</div><h1>Seu conteúdo.<br /><span>Suas regras.</span></h1><p>Escolha um modelo, mova cada elemento e personalize imagens, cores, textos e logotipos. O design fica do seu jeito.</p><div className="hero-actions"><button className="primary-btn" onClick={() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })}>Explorar modelos <ArrowUpRight size={18} /></button><span className="free-note"><Check size={15} /> Modelos de demonstração</span></div><div className="hero-proof"><div className="avatar-stack"><span>🎨</span><span>💖</span><span>✨</span></div><div><strong>Crie sem ficar preso ao modelo</strong><small>Mova · Redimensione · Personalize</small></div></div></div>
+        <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-dot" /> CRIAÇÃO DE CONTEÚDO PARA MARCAS</div><h1>Posts com a cara<br /><span>do seu negócio.</span></h1><p>Comece por uma referência visual, troque a foto e ajuste cada detalhe. Crie artes para Feed, Stories e carrosséis sem complicação.</p><div className="hero-actions"><button className="primary-btn" onClick={() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })}>Explorar modelos <ArrowUpRight size={18} /></button><span className="free-note"><Check size={15} /> Modelos de demonstração</span></div><div className="hero-proof"><div className="avatar-stack"><span>🎨</span><span>💖</span><span>✨</span></div><div><strong>Crie sem ficar preso ao modelo</strong><small>Mova · Redimensione · Personalize</small></div></div></div>
         <div className="hero-art" aria-label="Demonstração de modelos para Instagram"><div className="sticker sticker-spark">✦</div><div className="sticker sticker-heart">♥</div><div className="poster poster-back"><span className="poster-mini">IDEIAS QUE</span><strong>VIRAM<br />CONTEÚDO</strong><span className="poster-bottom">✳ CRIATIVIDADE TODO DIA</span></div><div className="poster poster-front"><div className="poster-pill">100% PERSONALIZÁVEL</div><div className="poster-sun">✺</div><strong>CRIE<br />DO SEU<br /><em>JEITO.</em></strong><span className="poster-footer">um post de cada vez ↗</span></div><div className="hero-caption"><span className="caption-icon"><Move size={17} /></span><span><b>Você controla cada elemento</b><small>Posição, tamanho, giro e mais</small></span></div></div>
       </section>
 
@@ -330,7 +336,7 @@ function App() {
             </div>
             <label className="field-label" htmlFor="design-name">NOME DO PROJETO</label><input id="design-name" className="text-field" value={designName} onChange={e => setDesignName(e.target.value)} />
             <div className="field-label"><Palette size={14} /> FUNDO DA ARTE</div><div className="background-controls"><label>Cor principal <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)} /></label><label>Cor secundária <input type="color" value={bgColor2} onChange={e => setBgColor2(e.target.value)} /></label></div><div className="bg-mode-row"><button className={bgMode === 'gradient' ? 'mini-choice active' : 'mini-choice'} onClick={() => setBgMode('gradient')}>Degradê</button><button className={bgMode === 'solid' ? 'mini-choice active' : 'mini-choice'} onClick={() => setBgMode('solid')}>Cor sólida</button></div>
-            <div className="element-actions"><button onClick={addText}><Type size={15} /> Texto</button><button onClick={addShape}><Plus size={15} /> Forma</button><button onClick={() => fileRef.current?.click()}><ImagePlus size={15} /> Imagem</button><button onClick={() => logoRef.current?.click()}><Upload size={15} /> Logotipo</button><input ref={fileRef} type="file" accept="image/*" hidden onChange={e => { addImage(e.target.files?.[0], 'image'); e.target.value = '' }} /><input ref={logoRef} type="file" accept="image/*" hidden onChange={e => { addImage(e.target.files?.[0], 'logo'); e.target.value = '' }} /></div>
+            <div className="element-actions"><button onClick={addText}><Type size={15} /> Texto</button><button onClick={addShape}><Plus size={15} /> Forma</button><button onClick={() => fileRef.current?.click()}><ImagePlus size={15} /> Imagem</button><button onClick={() => logoRef.current?.click()}><Upload size={15} /> Logotipo</button><input ref={fileRef} type="file" accept="image/*" hidden onChange={e => { addImage(e.target.files?.[0], 'image', replaceTargetRef.current); replaceTargetRef.current = null; e.target.value = '' }} /><input ref={logoRef} type="file" accept="image/*" hidden onChange={e => { addImage(e.target.files?.[0], 'logo', replaceTargetRef.current); replaceTargetRef.current = null; e.target.value = '' }} /></div>
             <div className="layers-header"><span><Layers size={14} /> CAMADAS ({layers.length})</span><small>Selecione para editar</small></div>
             <div className="layers-list">{layers.map(layer => <button key={layer.id} className={selectedLayer === layer.id ? 'layer-row active' : 'layer-row'} onClick={() => setSelectedLayer(layer.id)}><span className="layer-type-icon">{layer.type === 'text' ? <Type size={14} /> : layer.type === 'image' ? <ImagePlus size={14} /> : <Square size={14} />}</span><span>{layer.name}</span><small>{Math.round(layer.w)}×{Math.round(layer.h)}</small></button>)}</div>
             {currentLayer ? <div className="selected-properties">
